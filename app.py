@@ -1,5 +1,9 @@
+from database import create_database
+
+
 def main():
-    print("Bug Tracker Tool")
+    create_database()
+    print("Bug Tracker backend is ready.")
 
 
 if __name__ == "__main__":
