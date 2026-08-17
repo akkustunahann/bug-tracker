@@ -2,6 +2,11 @@ import sqlite3
 
 DATABASE_NAME = "database.db"
 
+STATUS_FLOW = {
+    "Created": "In Progress",
+    "In Progress": "Done",
+    "Done": None
+}
 
 def create_database():
     connection = sqlite3.connect(DATABASE_NAME)
@@ -66,6 +71,28 @@ def update_bug_status(bug_id, new_status):
     cursor = connection.cursor()
 
     cursor.execute("""
+        SELECT status
+        FROM bugs
+        WHERE id = ?
+    """, (bug_id,))
+
+    result = cursor.fetchone()
+
+    if result is None:
+        print("Bug not found.")
+        connection.close()
+        return
+
+    current_status = result[0]
+
+    allowed_next_status = STATUS_FLOW[current_status]
+
+    if allowed_next_status != new_status:
+        print(f"Invalid transition: {current_status} -> {new_status}")
+        connection.close()
+        return
+
+    cursor.execute("""
         UPDATE bugs
         SET status = ?
         WHERE id = ?
@@ -73,6 +100,8 @@ def update_bug_status(bug_id, new_status):
 
     connection.commit()
     connection.close()
+
+    print("Status updated successfully.")
 
 
 def delete_bug(bug_id):
