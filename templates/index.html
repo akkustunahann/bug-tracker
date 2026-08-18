@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Bug Tracker</title>
+</head>
+
+
+<body>
+
+<h1>Bug Tracker</h1>
+
+
+<form action="/add" method="POST">
+
+    <input 
+    name="title"
+    placeholder="Bug title">
+
+
+    <br><br>
+
+
+    <textarea 
+    name="description"
+    placeholder="Description"></textarea>
+
+
+    <br><br>
+
+
+    <input
+    name="reported_by"
+    placeholder="Your name">
+
+
+    <br><br>
+
+
+    <button type="submit">
+        Add Bug
+    </button>
+
+</form>
+
+
+<h2>Existing Bugs</h2>
+
+
+{% for bug in bugs %}
+
+<p>
+{{ bug }}
+</p>
+
+{% endfor %}
+
+
+</body>
+
+</html>
