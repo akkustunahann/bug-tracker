@@ -1,61 +1,145 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 
 <head>
-    <title>Bug Tracker</title>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Bug Tracker</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
 
 <body>
 
-<h1>Bug Tracker</h1>
+    <div class="container">
+
+        <h1>Bug Tracker</h1>
+
+        <section class="form-section">
+
+            <h2>Report New Bug</h2>
+
+            <form action="/add" method="POST">
+
+                <label for="title">Title</label>
+
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    placeholder="Enter bug title"
+                    required
+                >
+
+                <label for="description">Description</label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    placeholder="Describe the bug"
+                    required
+                ></textarea>
+
+                <label for="reported_by">Reported By</label>
+
+                <input
+                    type="text"
+                    id="reported_by"
+                    name="reported_by"
+                    placeholder="Your name"
+                    required
+                >
+
+                <button type="submit">
+                    Add Bug
+                </button>
+
+            </form>
+
+        </section>
 
 
-<form action="/add" method="POST">
+        <section class="dashboard-section">
 
-    <input 
-    name="title"
-    placeholder="Bug title">
+            <h2>Bug Dashboard</h2>
 
+            <table>
 
-    <br><br>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Reported By</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
 
+                <tbody>
 
-    <textarea 
-    name="description"
-    placeholder="Description"></textarea>
+                    {% for bug in bugs %}
 
+                    <tr>
+                        <td>{{ bug[0] }}</td>
+                        <td>{{ bug[1] }}</td>
+                        <td>{{ bug[2] }}</td>
+                        <td>{{ bug[3] }}</td>
 
-    <br><br>
+                        <td>
 
+                            {% if bug[4] == "Created" %}
 
-    <input
-    name="reported_by"
-    placeholder="Your name">
+                                <span class="status created">
+                                    Created
+                                </span>
 
+                            {% elif bug[4] == "In Progress" %}
 
-    <br><br>
+                                <span class="status in-progress">
+                                    In Progress
+                                </span>
 
+                            {% elif bug[4] == "Done" %}
 
-    <button type="submit">
-        Add Bug
-    </button>
+                                <span class="status done">
+                                    Done
+                                </span>
 
-</form>
+                            {% endif %}
 
+                        </td>
 
-<h2>Existing Bugs</h2>
+                        <td>{{ bug[5] }}</td>
 
+                    </tr>
 
-{% for bug in bugs %}
+                    {% endfor %}
 
-<p>
-{{ bug }}
-</p>
+                </tbody>
 
-{% endfor %}
+            </table>
 
+        </section>
+
+    </div>
+
+    <script>
+        const form = document.querySelector("form");
+
+        form.addEventListener("submit", function(event) {
+            const title = document.getElementById("title").value;
+
+            if (title.trim() === "") {
+             alert("Bug title cannot be empty!");
+                event.preventDefault();
+            }
+        });
+    </script>
 
 </body>
 
