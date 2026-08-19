@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS bugs (
     reported_by TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'Created'
         CHECK(status IN ('Created', 'In Progress', 'Done')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT (datetime('now', 'localtime'))
 );
