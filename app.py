@@ -3,7 +3,8 @@ from flask import Flask, render_template, request, redirect
 from database import (
     create_database,
     get_all_bugs,
-    create_bug
+    create_bug,
+    update_bug_status
 )
 
 
@@ -36,6 +37,15 @@ def add_bug():
 
     return redirect("/")
 
+@app.route("/update_status", methods=["POST"])
+def update_status():
+
+    bug_id = request.form["bug_id"]
+    new_status = request.form["status"]
+
+    update_bug_status(bug_id, new_status)
+
+    return redirect("/")
 
 if __name__ == "__main__":
 
