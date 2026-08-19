@@ -129,16 +129,30 @@
     </div>
 
     <script>
+
         const form = document.querySelector("form");
 
         form.addEventListener("submit", function(event) {
-            const title = document.getElementById("title").value;
 
-            if (title.trim() === "") {
-             alert("Bug title cannot be empty!");
-                event.preventDefault();
-            }
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const reporter = document.getElementById("reported_by").value;
+
+
+        if(title.trim() === "" || 
+            description.trim() === "" || 
+            reporter.trim() === "") {
+
+            alert("Please fill all fields!");
+            event.preventDefault();
+        }
+
+        else {
+            alert("Bug submitted successfully!");
+        }
+
         });
+
     </script>
 
 </body>
