@@ -17,6 +17,7 @@ Created → In Progress → Done
 ## Technologies
 
 - Python
+- Flask
 - SQLite
 - HTML
 - CSS
