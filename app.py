@@ -25,17 +25,36 @@ def home():
 @app.route("/add", methods=["POST"])
 def add_bug():
 
-    title = request.form["title"]
-    description = request.form["description"]
-    reported_by = request.form["reported_by"]
+    title = request.form["title"].strip()
+    description = request.form["description"].strip()
+    reported_by = request.form["reported_by"].strip()
 
-    create_bug(
+    if not title or not description or not reported_by:
+        bugs = get_all_bugs()
+
+        return render_template(
+            "index.html",
+            bugs=bugs,
+            error="Please fill in all fields."
+        )
+
+    success = create_bug(
         title,
         description,
         reported_by
     )
 
+    if not success:
+        bugs = get_all_bugs()
+
+        return render_template(
+            "index.html",
+            bugs=bugs,
+            error="A database error occurred. Please try again."
+        )
+
     return redirect("/")
+    
 
 @app.route("/update_status", methods=["POST"])
 def update_status():
@@ -43,7 +62,19 @@ def update_status():
     bug_id = request.form["bug_id"]
     new_status = request.form["status"]
 
-    update_bug_status(bug_id, new_status)
+    success = update_bug_status(
+        bug_id,
+        new_status
+    )
+
+    if not success:
+        bugs = get_all_bugs()
+
+        return render_template(
+            "index.html",
+            bugs=bugs,
+            error="Status could not be updated."
+        )
 
     return redirect("/")
 

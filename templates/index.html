@@ -19,6 +19,14 @@
 
         <h1>Bug Tracker</h1>
 
+            {% if error %}
+
+            <div class="error-message">
+                {{ error }}
+            </div>
+
+            {% endif %}
+
         <section class="form-section">
 
             <h2>Report New Bug</h2>
