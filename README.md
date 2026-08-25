@@ -1,6 +1,6 @@
 # Bug Tracker Tool
 
-A lightweight bug tracking application developed using Python and SQLite.
+A lightweight bug tracking web application developed using Python, Flask, and SQLite.
 
 ## Project Objective
 
@@ -46,4 +46,44 @@ bug-tracker/
 ├── requirements.txt
 ├── README.md
 ├── templates/
+│   └── index.html
 └── static/
+    └── style.css
+```
+
+## How to Run
+
+Clone the repository, create and activate a virtual environment, install the dependencies, and run the application:
+
+```bash
+git clone https://github.com/akkustunahann/bug-tracker
+cd bug-tracker
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python app.py
+```
+
+Then open the following address in your browser:
+http://127.0.0.1:5000
+
+## Features
+
+- Create new bug reports
+- View all bugs in a dashboard
+- Update bug statuses from the user interface
+- Status workflow: Created → In Progress → Done
+- Input validation for empty fields
+- Database error handling
+- Simple and clean user interface
+
+## Version Control
+
+This project was developed using Git and GitHub.
+
+The project uses:
+- `main` for the stable version
+- `develop` for integration
+- feature branches for individual development tasks
+
+Feature branches were merged into `develop` using pull requests, and the completed application was merged into `main`.
