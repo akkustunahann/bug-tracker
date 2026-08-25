@@ -41,16 +41,30 @@ def create_database():
 
 
 def create_bug(title, description, reported_by):
-    connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("""
-        INSERT INTO bugs (title, description, reported_by)
-        VALUES (?, ?, ?)
-    """, (title, description, reported_by))
+    connection = None
 
-    connection.commit()
-    connection.close()
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO bugs (title, description, reported_by)
+            VALUES (?, ?, ?)
+        """, (title, description, reported_by))
+
+        connection.commit()
+
+        return True
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+
+        return False
+
+    finally:
+        if connection:
+            connection.close()
 
 
 def get_all_bugs():
@@ -67,41 +81,53 @@ def get_all_bugs():
 
 
 def update_bug_status(bug_id, new_status):
-    connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("""
-        SELECT status
-        FROM bugs
-        WHERE id = ?
-    """, (bug_id,))
+    connection = None
 
-    result = cursor.fetchone()
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
 
-    if result is None:
-        print("Bug not found.")
-        connection.close()
-        return
+        cursor.execute("""
+            SELECT status
+            FROM bugs
+            WHERE id = ?
+        """, (bug_id,))
 
-    current_status = result[0]
+        result = cursor.fetchone()
 
-    allowed_next_status = STATUS_FLOW[current_status]
+        if result is None:
+            print("Bug not found.")
+            return False
 
-    if allowed_next_status != new_status:
-        print(f"Invalid transition: {current_status} -> {new_status}")
-        connection.close()
-        return
+        current_status = result[0]
 
-    cursor.execute("""
-        UPDATE bugs
-        SET status = ?
-        WHERE id = ?
-    """, (new_status, bug_id))
+        allowed_next_status = STATUS_FLOW[current_status]
 
-    connection.commit()
-    connection.close()
+        if allowed_next_status != new_status:
+            print(f"Invalid transition: {current_status} -> {new_status}")
+            return False
 
-    print("Status updated successfully.")
+        cursor.execute("""
+            UPDATE bugs
+            SET status = ?
+            WHERE id = ?
+        """, (new_status, bug_id))
+
+        connection.commit()
+
+        print("Status updated successfully.")
+
+        return True
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+
+        return False
+
+    finally:
+        if connection:
+            connection.close()
 
 
 def delete_bug(bug_id):

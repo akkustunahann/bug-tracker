@@ -19,11 +19,19 @@
 
         <h1>Bug Tracker</h1>
 
+            {% if error %}
+
+            <div class="error-message">
+                {{ error }}
+            </div>
+
+            {% endif %}
+
         <section class="form-section">
 
             <h2>Report New Bug</h2>
 
-            <form action="/add" method="POST">
+            <form id="bug-form" action="/add" method="POST">
 
                 <label for="title">Title</label>
 
@@ -92,25 +100,27 @@
 
                         <td>
 
-                            {% if bug[4] == "Created" %}
+                            <form action="/update_status" method="POST">
 
-                                <span class="status created">
-                                    Created
-                                </span>
+                                <input type="hidden" name="bug_id" value="{{ bug[0] }}">
 
-                            {% elif bug[4] == "In Progress" %}
+                                <select name="status" onchange="this.form.submit()">
 
-                                <span class="status in-progress">
-                                    In Progress
-                                </span>
+                                    <option value="Created"{% if bug[4] == "Created" %}selected{% endif %}>
+                                        Created
+                                    </option>
 
-                            {% elif bug[4] == "Done" %}
+                                    <option value="In Progress"{% if bug[4] == "In Progress" %}selected{% endif %}>
+                                        In Progress
+                                    </option>
 
-                                <span class="status done">
-                                    Done
-                                </span>
+                                    <option value="Done"{% if bug[4] == "Done" %}selected{% endif %}>
+                                        Done
+                                    </option>
 
-                            {% endif %}
+                                </select>
+
+                            </form>
 
                         </td>
 
@@ -129,16 +139,30 @@
     </div>
 
     <script>
-        const form = document.querySelector("form");
+
+        const form = document.getElementById("bug-form");
 
         form.addEventListener("submit", function(event) {
-            const title = document.getElementById("title").value;
 
-            if (title.trim() === "") {
-             alert("Bug title cannot be empty!");
-                event.preventDefault();
-            }
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const reporter = document.getElementById("reported_by").value;
+
+
+        if(title.trim() === "" || 
+            description.trim() === "" || 
+            reporter.trim() === "") {
+
+            alert("Please fill all fields!");
+            event.preventDefault();
+        }
+
+        else {
+            alert("Bug submitted successfully!");
+        }
+
         });
+
     </script>
 
 </body>
