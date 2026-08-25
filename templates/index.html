@@ -18,13 +18,19 @@
     <div class="container">
 
         <div class="header">
-            <h1>Bug Tracker</h1>
+            <div class="header-text">
+                <h1>Bug Tracker</h1>
 
-            <img
-            src="{{ url_for('static', filename='hsb-logo.jpeg') }}"
-            alt="HSB Solutions Logo"
-            class="hsb-logo"
-            >
+                <p class="subtitle">
+                     Report bugs, track their progress, and manage their status in one place.
+                </p>
+            </div>
+
+                <img
+                src="{{ url_for('static', filename='hsb-logo.jpeg') }}"
+                alt="HSB Solutions Logo"
+                class="hsb-logo"
+                >
         </div>
 
             {% if error %}
