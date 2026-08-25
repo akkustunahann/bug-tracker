@@ -118,3 +118,14 @@ select {
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.subtitle {
+    margin: 5px 0 0;
+    color: #666;
+    font-size: 15px;
+}
