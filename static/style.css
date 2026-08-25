@@ -11,10 +11,6 @@ body {
     margin: 40px auto;
 }
 
-h1 {
-    margin-bottom: 30px;
-}
-
 .form-section,
 .dashboard-section {
     background-color: white;
@@ -97,4 +93,28 @@ th {
     margin-bottom: 20px;
     border-radius: 5px;
     font-weight: bold;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.hsb-logo {
+    width: 140px;
+    height: auto;
+}
+
+select {
+    font-size: 15px;
+    padding: 7px 10px;
+    min-width: 125px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
