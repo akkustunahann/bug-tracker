@@ -17,13 +17,21 @@
 
     <div class="container">
 
-        <h1>Bug Tracker</h1>
+        <div class="header">
+            <h1>Bug Tracker</h1>
+
+            <img
+            src="{{ url_for('static', filename='hsb-logo.jpeg') }}"
+            alt="HSB Solutions Logo"
+            class="hsb-logo"
+            >
+        </div>
 
             {% if error %}
 
-            <div class="error-message">
-                {{ error }}
-            </div>
+        <div class="error-message">
+             {{ error }}
+        </div>
 
             {% endif %}
 
