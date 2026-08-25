@@ -8,24 +8,6 @@ STATUS_FLOW = {
     "Done": None
 }
 
-def create_database():
-    connection = sqlite3.connect(DATABASE_NAME)
-
-    with open("schema.sql", "r") as file:
-        connection.executescript(file.read())
-
-    connection.close()
-
-    print("Database created successfully.")
-
-
-if __name__ == "__main__":
-    create_database()
-
-import sqlite3
-
-DATABASE_NAME = "database.db"
-
 
 def get_connection():
     return sqlite3.connect(DATABASE_NAME)
@@ -38,6 +20,8 @@ def create_database():
         connection.executescript(file.read())
 
     connection.close()
+
+    print("Database created successfully.")
 
 
 def create_bug(title, description, reported_by):
@@ -59,7 +43,6 @@ def create_bug(title, description, reported_by):
 
     except sqlite3.Error as error:
         print("Database error:", error)
-
         return False
 
     finally:
@@ -122,7 +105,6 @@ def update_bug_status(bug_id, new_status):
 
     except sqlite3.Error as error:
         print("Database error:", error)
-
         return False
 
     finally:
