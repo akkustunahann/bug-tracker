@@ -48,7 +48,8 @@ bug-tracker/
 ├── templates/
 │   └── index.html
 └── static/
-    └── style.css
+    ├── style.css
+    └── hsb-logo.jpeg
 ```
 
 ## How to Run
