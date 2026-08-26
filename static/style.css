@@ -129,3 +129,18 @@ select {
     color: #666;
     font-size: 15px;
 }
+
+.delete-button {
+    width: auto;
+    padding: 7px 12px;
+    font-size: 14px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #b02a37;
+}
