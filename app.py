@@ -4,7 +4,8 @@ from database import (
     create_database,
     get_all_bugs,
     create_bug,
-    update_bug_status
+    update_bug_status,
+    delete_bug
 )
 
 
@@ -75,6 +76,14 @@ def update_status():
             bugs=bugs,
             error="Status could not be updated."
         )
+
+    return redirect("/")
+
+@app.route("/delete", methods=["POST"])
+def delete():
+    bug_id = request.form["bug_id"]
+
+    delete_bug(bug_id)
 
     return redirect("/")
 
