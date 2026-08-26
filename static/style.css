@@ -45,6 +45,8 @@ button {
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
+    background-color: #0b4f63;
+    color: white;   
 }
 
 table {
@@ -61,6 +63,7 @@ td {
 
 th {
     background-color: #f0f0f0;
+    color: #0b4f63;
 }
 
 .status {
@@ -106,8 +109,23 @@ th {
     margin: 0;
 }
 
+.logo-container {
+    width: 145px;
+    height: 155px;
+
+    background-color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 0 0 75px 75px;
+
+    margin-top: -40px;
+}
+
 .hsb-logo {
-    width: 140px;
+    width: 100px;
     height: auto;
 }
 
@@ -117,6 +135,7 @@ select {
     min-width: 125px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    color: #0b4f63;
 }
 
 .header-text {
@@ -126,7 +145,7 @@ select {
 
 .subtitle {
     margin: 5px 0 0;
-    color: #666;
+    color: #5f737a;
     font-size: 15px;
 }
 
