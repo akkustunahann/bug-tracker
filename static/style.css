@@ -163,3 +163,7 @@ select {
 .delete-button:hover {
     background-color: #b02a37;
 }
+
+label {
+    color: #0b4f63;
+}
