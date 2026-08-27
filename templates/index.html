@@ -34,13 +34,17 @@
             </div>
         </div>
 
-            {% if error %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
 
-        <div class="error-message">
-             {{ error }}
-        </div>
+             {% for category, message in messages %}
 
-            {% endif %}
+            <div class="message {{ category }}">
+            {{ message }}
+            </div>
+
+            {% endfor %}
+
+            {% endwith %}
 
         <section class="form-section">
 
@@ -109,28 +113,28 @@
                     {% for bug in bugs %}
 
                     <tr>
-                        <td>{{ bug[0] }}</td>
-                        <td>{{ bug[1] }}</td>
-                        <td>{{ bug[2] }}</td>
-                        <td>{{ bug[3] }}</td>
+                        <td>{{ bug["id"] }}</td>
+                        <td>{{ bug["title"] }}</td>
+                        <td>{{ bug["description"] }}</td>
+                        <td>{{ bug["reported_by"] }}</td>
 
                         <td>
 
                             <form action="/update_status" method="POST">
 
-                                <input type="hidden" name="bug_id" value="{{ bug[0] }}">
+                                <input type="hidden" name="bug_id" value="{{ bug['id'] }}">
 
                                 <select name="status" onchange="this.form.submit()">
 
-                                    <option value="Created"{% if bug[4] == "Created" %}selected{% endif %}>
+                                    <option value="Created"{% if bug["status"] == "Created" %}selected{% endif %}>
                                         Created
                                     </option>
 
-                                    <option value="In Progress"{% if bug[4] == "In Progress" %}selected{% endif %}>
+                                    <option value="In Progress"{% if bug["status"] == "In Progress" %}selected{% endif %}>
                                         In Progress
                                     </option>
 
-                                    <option value="Done"{% if bug[4] == "Done" %}selected{% endif %}>
+                                    <option value="Done"{% if bug["status"] == "Done" %}selected{% endif %}>
                                         Done
                                     </option>
 
@@ -140,18 +144,18 @@
 
                         </td>
 
-                        <td>{{ bug[5] }}</td>
+                        <td>{{ bug["created_at"] }}</td>
 
                         <td>
 
-                            {% if bug[4] == "Done" %}
+                            {% if bug["status"] == "Done" %}
 
                             <form action="/delete" method="POST">
 
                                 <input
                                 type="hidden"
                                 name="bug_id"
-                                value="{{ bug[0] }}"
+                                value="{{ bug['id'] }}"
                                 >
 
                                 <button
@@ -182,30 +186,26 @@
 
     <script>
 
-        const form = document.getElementById("bug-form");
+    const form = document.getElementById("bug-form");
 
-        form.addEventListener("submit", function(event) {
+    form.addEventListener("submit", function(event) {
 
         const title = document.getElementById("title").value;
         const description = document.getElementById("description").value;
         const reporter = document.getElementById("reported_by").value;
 
-
-        if(title.trim() === "" || 
-            description.trim() === "" || 
-            reporter.trim() === "") {
-
+        if (
+            title.trim() === "" ||
+            description.trim() === "" ||
+            reporter.trim() === ""
+        ) {
             alert("Please fill all fields!");
             event.preventDefault();
         }
 
-        else {
-            alert("Bug submitted successfully!");
-        }
+    });
 
-        });
-
-    </script>
+</script>
 
 </body>
 
