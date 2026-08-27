@@ -1,4 +1,5 @@
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
 
 DATABASE_NAME = "database.db"
 
@@ -8,9 +9,131 @@ STATUS_FLOW = {
     "Done": None
 }
 
+def create_user(username, password, role):
+
+    connection = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        password_hash = generate_password_hash(
+            password,
+            method="pbkdf2:sha256"
+        )
+
+        cursor.execute("""
+            INSERT INTO users (username, password_hash, role)
+            VALUES (?, ?, ?)
+        """, (username, password_hash, role))
+
+        connection.commit()
+
+        return True
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return False
+
+    finally:
+        if connection:
+            connection.close()
+
+def authenticate_user(username, password):
+
+    connection = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT *
+            FROM users
+            WHERE username = ?
+        """, (username,))
+
+        user = cursor.fetchone()
+
+        if user is None:
+            return None
+
+        if not check_password_hash(user["password_hash"], password):
+            return None
+
+        return user
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return None
+
+    finally:
+        if connection:
+            connection.close()
+
+def log_activity(user_id, username, action, bug_id=None):
+
+    connection = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO activity_logs (
+                user_id,
+                username,
+                action,
+                bug_id
+            )
+            VALUES (?, ?, ?, ?)
+        """, (
+            user_id,
+            username,
+            action,
+            bug_id
+        ))
+
+        connection.commit()
+
+        return True
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return False
+
+    finally:
+        if connection:
+            connection.close()      
+
+def get_activity_logs():
+
+    connection = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT *
+            FROM activity_logs
+            ORDER BY created_at DESC, id DESC
+        """)
+
+        return cursor.fetchall()
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return []
+
+    finally:
+        if connection:
+            connection.close()      
 
 def get_connection():
-    return sqlite3.connect(DATABASE_NAME)
+    connection = sqlite3.connect(DATABASE_NAME)
+    connection.row_factory = sqlite3.Row
+    return connection
 
 
 def create_database():
@@ -39,7 +162,7 @@ def create_bug(title, description, reported_by):
 
         connection.commit()
 
-        return True
+        return cursor.lastrowid
 
     except sqlite3.Error as error:
         print("Database error:", error)
@@ -51,16 +174,24 @@ def create_bug(title, description, reported_by):
 
 
 def get_all_bugs():
-    connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("SELECT * FROM bugs")
+    connection = None
 
-    bugs = cursor.fetchall()
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
 
-    connection.close()
+        cursor.execute("SELECT * FROM bugs")
 
-    return bugs
+        return cursor.fetchall()
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return []
+
+    finally:
+        if connection:
+            connection.close()
 
 
 def update_bug_status(bug_id, new_status):
@@ -83,7 +214,7 @@ def update_bug_status(bug_id, new_status):
             print("Bug not found.")
             return False
 
-        current_status = result[0]
+        current_status = result["status"]
 
         allowed_next_status = STATUS_FLOW[current_status]
 
@@ -113,16 +244,32 @@ def update_bug_status(bug_id, new_status):
 
 
 def delete_bug(bug_id):
-    connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("""
-        DELETE FROM bugs
-        WHERE id = ?
-    """, (bug_id,))
+    connection = None
 
-    connection.commit()
-    connection.close()
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            DELETE FROM bugs
+            WHERE id = ?
+        """, (bug_id,))
+
+        connection.commit()
+
+        if cursor.rowcount == 0:
+            return False
+
+        return True
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return False
+
+    finally:
+        if connection:
+            connection.close()
 
 
 if __name__ == "__main__":

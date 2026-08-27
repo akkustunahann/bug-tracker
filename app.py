@@ -1,64 +1,117 @@
-from flask import Flask, render_template, request, redirect
+import os
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, redirect, flash, session
 
 from database import (
     create_database,
     get_all_bugs,
     create_bug,
     update_bug_status,
-    delete_bug
+    delete_bug,
+    authenticate_user,
+    log_activity,
+    get_activity_logs
 )
 
-
+load_dotenv()
 app = Flask(__name__)
+app.secret_key = os.environ["SECRET_KEY"]
 
 
 @app.route("/")
 def home():
 
+    if "user_id" not in session:
+        return redirect("/login")
+
     bugs = get_all_bugs()
+
+    activity_logs = []
+
+    if session.get("role") == "admin":
+        activity_logs = get_activity_logs()
 
     return render_template(
         "index.html",
-        bugs=bugs
+        bugs=bugs,
+        activity_logs=activity_logs
     )
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if request.method == "POST":
+
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        user = authenticate_user(username, password)
+
+        if user is None:
+            flash("Invalid username or password.", "error")
+            return redirect("/login")
+
+        session["user_id"] = user["id"]
+        session["username"] = user["username"]
+        session["role"] = user["role"]
+
+        flash("Login successful.", "success")
+
+        return redirect("/")
+
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    flash("You have been logged out.", "success")
+
+    return redirect("/login")
 
 @app.route("/add", methods=["POST"])
 def add_bug():
 
-    title = request.form["title"].strip()
-    description = request.form["description"].strip()
-    reported_by = request.form["reported_by"].strip()
+    if "user_id" not in session:
+        flash("Please log in first.", "error")
+        return redirect("/login")
+
+    title = request.form.get("title", "").strip()
+    description = request.form.get("description", "").strip()
+    reported_by = request.form.get("reported_by", "").strip()
 
     if not title or not description or not reported_by:
-        bugs = get_all_bugs()
+        flash("Please fill in all fields.", "error")
+        return redirect("/")
 
-        return render_template(
-            "index.html",
-            bugs=bugs,
-            error="Please fill in all fields."
-        )
-
-    success = create_bug(
-        title,
-        description,
-        reported_by
+    bug_id = create_bug(
+    title,
+    description,
+    reported_by
     )
 
-    if not success:
-        bugs = get_all_bugs()
+    if not bug_id:
+        flash("A database error occurred. Please try again.", "error")
+        return redirect("/")
+    
+    log_activity(
+        session["user_id"],
+        session["username"],
+        "Created bug",
+        bug_id
+    )       
 
-        return render_template(
-            "index.html",
-            bugs=bugs,
-            error="A database error occurred. Please try again."
-        )
+    flash("Bug submitted successfully!", "success")
 
     return redirect("/")
     
-
 @app.route("/update_status", methods=["POST"])
 def update_status():
+
+    if session.get("role") != "admin":
+        flash("You are not authorized to update bug status.", "error")
+        return redirect("/")
 
     bug_id = request.form["bug_id"]
     new_status = request.form["status"]
@@ -68,22 +121,45 @@ def update_status():
         new_status
     )
 
-    if not success:
-        bugs = get_all_bugs()
+    if success:
 
-        return render_template(
-            "index.html",
-            bugs=bugs,
-            error="Status could not be updated."
+        log_activity(
+            session["user_id"],
+            session["username"],
+            f"Updated status to {new_status}",
+            bug_id
         )
+
+        flash("Status updated successfully.", "success")
+    else:
+        flash("Status could not be updated.", "error")
 
     return redirect("/")
 
+
 @app.route("/delete", methods=["POST"])
 def delete():
+
+    if session.get("role") != "admin":
+        flash("You are not authorized to delete bugs.", "error")
+        return redirect("/")
+
     bug_id = request.form["bug_id"]
 
-    delete_bug(bug_id)
+    success = delete_bug(bug_id)
+
+    if success:
+
+        log_activity(
+            session["user_id"],
+            session["username"],
+            "Deleted bug",
+            bug_id
+        )
+
+        flash("Bug deleted successfully.", "success")
+    else:
+        flash("Bug could not be deleted.", "error")
 
     return redirect("/")
 
@@ -91,4 +167,5 @@ if __name__ == "__main__":
 
     create_database()
 
-    app.run(debug=True)
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug_mode)

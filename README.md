@@ -17,6 +17,7 @@ Created → In Progress → Done
 ## Technologies
 
 - Python
+- Python-dotenv
 - Flask
 - SQLite
 - HTML
@@ -62,6 +63,14 @@ cd bug-tracker
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+```
+
+Create a .env file in the project root and add:
+SECRET_KEY=your-secret-key
+FLASK_DEBUG=true
+
+Then run the application:
+```bash
 python app.py
 ```
 

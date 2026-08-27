@@ -19,11 +19,23 @@
 
         <div class="header">
             <div class="header-text">
+
                 <h1>Bug Tracker</h1>
 
                 <p class="subtitle">
                      Report bugs, track their progress, and manage their status in one place.
                 </p>
+
+                <div class="user-info">
+                    Logged in as
+                    <strong>{{ session["username"] }}</strong>
+                    ({{ session["role"] }})
+
+                    <a href="/logout" class="logout-button">
+                        Logout
+                    </a>
+                </div>
+
             </div>
             <div class="logo-container">
                 <img
@@ -34,13 +46,17 @@
             </div>
         </div>
 
-            {% if error %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
 
-        <div class="error-message">
-             {{ error }}
-        </div>
+             {% for category, message in messages %}
 
-            {% endif %}
+            <div class="message {{ category }}">
+            {{ message }}
+            </div>
+
+            {% endfor %}
+
+            {% endwith %}
 
         <section class="form-section">
 
@@ -109,49 +125,67 @@
                     {% for bug in bugs %}
 
                     <tr>
-                        <td>{{ bug[0] }}</td>
-                        <td>{{ bug[1] }}</td>
-                        <td>{{ bug[2] }}</td>
-                        <td>{{ bug[3] }}</td>
+                        <td>{{ bug["id"] }}</td>
+                        <td>{{ bug["title"] }}</td>
+                        <td>{{ bug["description"] }}</td>
+                        <td>{{ bug["reported_by"] }}</td>
 
                         <td>
 
-                            <form action="/update_status" method="POST">
+                            {% if session.get("role") == "admin" %}
 
-                                <input type="hidden" name="bug_id" value="{{ bug[0] }}">
+                             <form action="/update_status" method="POST">
+
+                                <input
+                                    type="hidden"
+                                    name="bug_id"
+                                    value="{{ bug['id'] }}"
+                                >
 
                                 <select name="status" onchange="this.form.submit()">
 
-                                    <option value="Created"{% if bug[4] == "Created" %}selected{% endif %}>
+                                    <option value="Created"
+                                        {% if bug["status"] == "Created" %}selected{% endif %}
+                                        >
                                         Created
                                     </option>
 
-                                    <option value="In Progress"{% if bug[4] == "In Progress" %}selected{% endif %}>
+                                    <option value="In Progress"
+                                        {% if bug["status"] == "In Progress" %}selected{% endif %}
+                                        >
                                         In Progress
                                     </option>
 
-                                    <option value="Done"{% if bug[4] == "Done" %}selected{% endif %}>
+                                    <option value="Done"
+                                        {% if bug["status"] == "Done" %}selected{% endif %}
+                                    >
                                         Done
                                     </option>
 
-                                </select>
+                                 </select>
 
-                            </form>
+                             </form>
+
+                            {% else %}
+
+                            {{ bug["status"] }}
+
+                            {% endif %}
 
                         </td>
 
-                        <td>{{ bug[5] }}</td>
+                        <td>{{ bug["created_at"] }}</td>
 
                         <td>
 
-                            {% if bug[4] == "Done" %}
+                            {% if session.get("role") == "admin" and bug["status"] == "Done" %}
 
                             <form action="/delete" method="POST">
 
                                 <input
                                 type="hidden"
                                 name="bug_id"
-                                value="{{ bug[0] }}"
+                                value="{{ bug['id'] }}"
                                 >
 
                                 <button
@@ -177,35 +211,74 @@
             </table>
 
         </section>
+        {% if session.get("role") == "admin" %}
+
+        <section class="dashboard-section">
+
+            <h2>Activity Log</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Bug ID</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for log in activity_logs %}
+
+                    <tr>
+                    <td>{{ log["username"] }}</td>
+                    <td>{{ log["action"] }}</td>
+                    <td>
+                        {% if log["bug_id"] %}
+                            {{ log["bug_id"] }}
+                        {% else %}
+                            -
+                         {% endif %}
+                        </td>
+                        <td>{{ log["created_at"] }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                 </tbody>
+
+            </table>
+
+        </section>
+
+        {% endif %}
 
     </div>
 
     <script>
 
-        const form = document.getElementById("bug-form");
+    const form = document.getElementById("bug-form");
 
-        form.addEventListener("submit", function(event) {
+    form.addEventListener("submit", function(event) {
 
         const title = document.getElementById("title").value;
         const description = document.getElementById("description").value;
         const reporter = document.getElementById("reported_by").value;
 
-
-        if(title.trim() === "" || 
-            description.trim() === "" || 
-            reporter.trim() === "") {
-
+        if (
+            title.trim() === "" ||
+            description.trim() === "" ||
+            reporter.trim() === ""
+        ) {
             alert("Please fill all fields!");
             event.preventDefault();
         }
 
-        else {
-            alert("Bug submitted successfully!");
-        }
+    });
 
-        });
-
-    </script>
+</script>
 
 </body>
 
