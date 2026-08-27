@@ -1,4 +1,5 @@
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
 
 DATABASE_NAME = "database.db"
 
@@ -8,6 +9,67 @@ STATUS_FLOW = {
     "Done": None
 }
 
+def create_user(username, password, role):
+
+    connection = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        password_hash = generate_password_hash(
+            password,
+            method="pbkdf2:sha256"
+        )
+
+        cursor.execute("""
+            INSERT INTO users (username, password_hash, role)
+            VALUES (?, ?, ?)
+        """, (username, password_hash, role))
+
+        connection.commit()
+
+        return True
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return False
+
+    finally:
+        if connection:
+            connection.close()
+
+def authenticate_user(username, password):
+
+    connection = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT *
+            FROM users
+            WHERE username = ?
+        """, (username,))
+
+        user = cursor.fetchone()
+
+        if user is None:
+            return None
+
+        if not check_password_hash(user["password_hash"], password):
+            return None
+
+        return user
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return None
+
+    finally:
+        if connection:
+            connection.close()
 
 def get_connection():
     connection = sqlite3.connect(DATABASE_NAME)

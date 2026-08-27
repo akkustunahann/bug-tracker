@@ -175,3 +175,25 @@ label {
     background-color: #fee2e2;
     color: #991b1b;
 }
+
+.user-info {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #5f737a;
+}
+
+.logout-button {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 6px 10px;
+
+    background-color: #0b4f63;
+    color: white;
+
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.logout-button:hover {
+    background-color: #083b4a;
+}
