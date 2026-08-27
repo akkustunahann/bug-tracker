@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect
+import os
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, redirect, flash
 
 from database import (
     create_database,
@@ -8,8 +10,9 @@ from database import (
     delete_bug
 )
 
-
+load_dotenv()
 app = Flask(__name__)
+app.secret_key = os.environ["SECRET_KEY"]
 
 
 @app.route("/")
@@ -26,18 +29,13 @@ def home():
 @app.route("/add", methods=["POST"])
 def add_bug():
 
-    title = request.form["title"].strip()
-    description = request.form["description"].strip()
-    reported_by = request.form["reported_by"].strip()
+    title = request.form.get("title", "").strip()
+    description = request.form.get("description", "").strip()
+    reported_by = request.form.get("reported_by", "").strip()
 
     if not title or not description or not reported_by:
-        bugs = get_all_bugs()
-
-        return render_template(
-            "index.html",
-            bugs=bugs,
-            error="Please fill in all fields."
-        )
+        flash("Please fill in all fields.", "error")
+        return redirect("/")
 
     success = create_bug(
         title,
@@ -46,17 +44,13 @@ def add_bug():
     )
 
     if not success:
-        bugs = get_all_bugs()
+        flash("A database error occurred. Please try again.", "error")
+        return redirect("/")
 
-        return render_template(
-            "index.html",
-            bugs=bugs,
-            error="A database error occurred. Please try again."
-        )
+    flash("Bug submitted successfully!", "success")
 
     return redirect("/")
     
-
 @app.route("/update_status", methods=["POST"])
 def update_status():
 
@@ -68,22 +62,25 @@ def update_status():
         new_status
     )
 
-    if not success:
-        bugs = get_all_bugs()
-
-        return render_template(
-            "index.html",
-            bugs=bugs,
-            error="Status could not be updated."
-        )
+    if success:
+        flash("Status updated successfully.", "success")
+    else:
+        flash("Status could not be updated.", "error")
 
     return redirect("/")
 
+
 @app.route("/delete", methods=["POST"])
 def delete():
+
     bug_id = request.form["bug_id"]
 
-    delete_bug(bug_id)
+    success = delete_bug(bug_id)
+
+    if success:
+        flash("Bug deleted successfully.", "success")
+    else:
+        flash("Bug could not be deleted.", "error")
 
     return redirect("/")
 
@@ -91,4 +88,5 @@ if __name__ == "__main__":
 
     create_database()
 
-    app.run(debug=True)
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug_mode)
