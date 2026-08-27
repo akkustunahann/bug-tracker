@@ -15,3 +15,12 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT NOT NULL
         CHECK(role IN ('user', 'admin'))
 );
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    username TEXT NOT NULL,
+    action TEXT NOT NULL,
+    bug_id INTEGER,
+    created_at TIMESTAMP DEFAULT (datetime('now', 'localtime'))
+);

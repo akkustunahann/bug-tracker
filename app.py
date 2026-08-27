@@ -8,7 +8,9 @@ from database import (
     create_bug,
     update_bug_status,
     delete_bug,
-    authenticate_user
+    authenticate_user,
+    log_activity,
+    get_activity_logs
 )
 
 load_dotenv()
@@ -24,9 +26,15 @@ def home():
 
     bugs = get_all_bugs()
 
+    activity_logs = []
+
+    if session.get("role") == "admin":
+        activity_logs = get_activity_logs()
+
     return render_template(
         "index.html",
-        bugs=bugs
+        bugs=bugs,
+        activity_logs=activity_logs
     )
 
 @app.route("/login", methods=["GET", "POST"])
@@ -77,15 +85,22 @@ def add_bug():
         flash("Please fill in all fields.", "error")
         return redirect("/")
 
-    success = create_bug(
-        title,
-        description,
-        reported_by
+    bug_id = create_bug(
+    title,
+    description,
+    reported_by
     )
 
-    if not success:
+    if not bug_id:
         flash("A database error occurred. Please try again.", "error")
         return redirect("/")
+    
+    log_activity(
+        session["user_id"],
+        session["username"],
+        "Created bug",
+        bug_id
+    )       
 
     flash("Bug submitted successfully!", "success")
 
@@ -107,6 +122,14 @@ def update_status():
     )
 
     if success:
+
+        log_activity(
+            session["user_id"],
+            session["username"],
+            f"Updated status to {new_status}",
+            bug_id
+        )
+
         flash("Status updated successfully.", "success")
     else:
         flash("Status could not be updated.", "error")
@@ -126,6 +149,14 @@ def delete():
     success = delete_bug(bug_id)
 
     if success:
+
+        log_activity(
+            session["user_id"],
+            session["username"],
+            "Deleted bug",
+            bug_id
+        )
+
         flash("Bug deleted successfully.", "success")
     else:
         flash("Bug could not be deleted.", "error")

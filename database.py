@@ -71,6 +71,65 @@ def authenticate_user(username, password):
         if connection:
             connection.close()
 
+def log_activity(user_id, username, action, bug_id=None):
+
+    connection = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO activity_logs (
+                user_id,
+                username,
+                action,
+                bug_id
+            )
+            VALUES (?, ?, ?, ?)
+        """, (
+            user_id,
+            username,
+            action,
+            bug_id
+        ))
+
+        connection.commit()
+
+        return True
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return False
+
+    finally:
+        if connection:
+            connection.close()      
+
+def get_activity_logs():
+
+    connection = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT *
+            FROM activity_logs
+            ORDER BY created_at DESC, id DESC
+        """)
+
+        return cursor.fetchall()
+
+    except sqlite3.Error as error:
+        print("Database error:", error)
+        return []
+
+    finally:
+        if connection:
+            connection.close()      
+
 def get_connection():
     connection = sqlite3.connect(DATABASE_NAME)
     connection.row_factory = sqlite3.Row
@@ -103,7 +162,7 @@ def create_bug(title, description, reported_by):
 
         connection.commit()
 
-        return True
+        return cursor.lastrowid
 
     except sqlite3.Error as error:
         print("Database error:", error)

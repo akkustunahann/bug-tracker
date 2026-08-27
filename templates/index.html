@@ -211,6 +211,49 @@
             </table>
 
         </section>
+        {% if session.get("role") == "admin" %}
+
+        <section class="dashboard-section">
+
+            <h2>Activity Log</h2>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Bug ID</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for log in activity_logs %}
+
+                    <tr>
+                    <td>{{ log["username"] }}</td>
+                    <td>{{ log["action"] }}</td>
+                    <td>
+                        {% if log["bug_id"] %}
+                            {{ log["bug_id"] }}
+                        {% else %}
+                            -
+                         {% endif %}
+                        </td>
+                        <td>{{ log["created_at"] }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                 </tbody>
+
+            </table>
+
+        </section>
+
+        {% endif %}
 
     </div>
 
