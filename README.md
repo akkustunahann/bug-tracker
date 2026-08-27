@@ -4,11 +4,9 @@ A lightweight bug tracking web application developed using Python, Flask, and SQ
 
 ## Project Objective
 
-The purpose of this project is to provide a simple system for reporting,
-tracking, and managing software bugs.
+The purpose of this project is to provide a simple system for reporting, tracking, and managing software bugs.
 
-Users will be able to create bug reports and developers will be able to
-update their status throughout the development process.
+Users can create bug reports, while authorized users can update their status and manage completed bugs.
 
 ## Bug Workflow
 
@@ -28,7 +26,9 @@ Created → In Progress → Done
 
 ## Database
 
-The bug database contains the following fields:
+The application uses SQLite and contains the following main tables:
+
+### Bugs
 
 - ID
 - Title
@@ -36,6 +36,23 @@ The bug database contains the following fields:
 - Reported By
 - Status
 - Created At
+
+### Users
+
+- ID
+- Username
+- Password Hash
+- Role
+
+### Activity Logs
+
+- ID
+- User ID
+- Username
+- Action
+- Bug ID
+- Created At
+
 
 ## Project Structure
 
@@ -48,6 +65,7 @@ bug-tracker/
 ├── README.md
 ├── templates/
 │   └── index.html
+    └── login.html
 └── static/
     ├── style.css
     └── hsb-logo.jpeg
@@ -66,8 +84,10 @@ python -m pip install -r requirements.txt
 ```
 
 Create a .env file in the project root and add:
+```bash
 SECRET_KEY=your-secret-key
 FLASK_DEBUG=true
+```
 
 Then run the application:
 ```bash
@@ -81,11 +101,17 @@ http://127.0.0.1:5000
 
 - Create new bug reports
 - View all bugs in a dashboard
-- Update bug statuses from the user interface
+- User authentication with secure password hashing
+- Role-based authorization
+- Admin-only status updates
+- Admin-only deletion of completed bugs
 - Status workflow: Created → In Progress → Done
+- Activity logging for user actions
+- Server-side success and error messages using Flask flash
 - Input validation for empty fields
 - Database error handling
-- Simple and clean user interface
+- Environment-based configuration
+- Simple HSB-branded user interface
 
 ## Version Control
 
