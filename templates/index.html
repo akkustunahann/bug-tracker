@@ -19,11 +19,23 @@
 
         <div class="header">
             <div class="header-text">
+
                 <h1>Bug Tracker</h1>
 
                 <p class="subtitle">
                      Report bugs, track their progress, and manage their status in one place.
                 </p>
+
+                <div class="user-info">
+                    Logged in as
+                    <strong>{{ session["username"] }}</strong>
+                    ({{ session["role"] }})
+
+                    <a href="/logout" class="logout-button">
+                        Logout
+                    </a>
+                </div>
+
             </div>
             <div class="logo-container">
                 <img
@@ -120,27 +132,45 @@
 
                         <td>
 
-                            <form action="/update_status" method="POST">
+                            {% if session.get("role") == "admin" %}
 
-                                <input type="hidden" name="bug_id" value="{{ bug['id'] }}">
+                             <form action="/update_status" method="POST">
+
+                                <input
+                                    type="hidden"
+                                    name="bug_id"
+                                    value="{{ bug['id'] }}"
+                                >
 
                                 <select name="status" onchange="this.form.submit()">
 
-                                    <option value="Created"{% if bug["status"] == "Created" %}selected{% endif %}>
+                                    <option value="Created"
+                                        {% if bug["status"] == "Created" %}selected{% endif %}
+                                        >
                                         Created
                                     </option>
 
-                                    <option value="In Progress"{% if bug["status"] == "In Progress" %}selected{% endif %}>
+                                    <option value="In Progress"
+                                        {% if bug["status"] == "In Progress" %}selected{% endif %}
+                                        >
                                         In Progress
                                     </option>
 
-                                    <option value="Done"{% if bug["status"] == "Done" %}selected{% endif %}>
+                                    <option value="Done"
+                                        {% if bug["status"] == "Done" %}selected{% endif %}
+                                    >
                                         Done
                                     </option>
 
-                                </select>
+                                 </select>
 
-                            </form>
+                             </form>
+
+                            {% else %}
+
+                            {{ bug["status"] }}
+
+                            {% endif %}
 
                         </td>
 
@@ -148,7 +178,7 @@
 
                         <td>
 
-                            {% if bug["status"] == "Done" %}
+                            {% if session.get("role") == "admin" and bug["status"] == "Done" %}
 
                             <form action="/delete" method="POST">
 
